@@ -173,38 +173,46 @@ class MainWindow(QMainWindow):
         data = self.serial_handler.read_data()
         
         if data:
-            # Append new data
-            self.time_data.append(data['time'])
-            self.roll_data.append(data['roll'])
-            self.pitch_data.append(data['pitch'])
-            self.yaw_data.append(data['yaw'])
-            self.altitude_data.append(data['altitude'])
-            
-            # Keep only last 500 points for performance
-            max_points = 500
-            if len(self.time_data) > max_points:
-                self.time_data = self.time_data[-max_points:]
-                self.roll_data = self.roll_data[-max_points:]
-                self.pitch_data = self.pitch_data[-max_points:]
-                self.yaw_data = self.yaw_data[-max_points:]
-                self.altitude_data = self.altitude_data[-max_points:]
-            
-            # Update plots
-            self.roll_curve.setData(self.time_data, self.roll_data)
-            self.pitch_curve.setData(self.time_data, self.pitch_data)
-            self.yaw_curve.setData(self.time_data, self.yaw_data)
-            self.altitude_curve.setData(self.time_data, self.altitude_data)
-            
-            # Update orientation visualization
-            self.orientation_widget.update_orientation(
-                data['roll'], data['pitch'], data['yaw']
-            )
-            
-            # Update labels
-            self.roll_label.setText(f"Roll: {data['roll']:.1f}°")
-            self.pitch_label.setText(f"Pitch: {data['pitch']:.1f}°")
-            self.yaw_label.setText(f"Yaw: {data['yaw']:.1f}°")
-            self.altitude_label.setText(f"Altitude: {data['altitude']:.1f} m")
+            # Check if this is telemetry data (not a status message)
+            if all(key in data for key in ['roll', 'pitch', 'yaw', 'altitude']):
+                # Append new data
+                self.time_data.append(data['time'])
+                self.roll_data.append(data['roll'])
+                self.pitch_data.append(data['pitch'])
+                self.yaw_data.append(data['yaw'])
+                self.altitude_data.append(data['altitude'])
+                
+                # Keep only last 500 points for performance
+                max_points = 500
+                if len(self.time_data) > max_points:
+                    self.time_data = self.time_data[-max_points:]
+                    self.roll_data = self.roll_data[-max_points:]
+                    self.pitch_data = self.pitch_data[-max_points:]
+                    self.yaw_data = self.yaw_data[-max_points:]
+                    self.altitude_data = self.altitude_data[-max_points:]
+                
+                # Update plots
+                self.roll_curve.setData(self.time_data, self.roll_data)
+                self.pitch_curve.setData(self.time_data, self.pitch_data)
+                self.yaw_curve.setData(self.time_data, self.yaw_data)
+                self.altitude_curve.setData(self.time_data, self.altitude_data)
+                
+                # Update orientation visualization
+                self.orientation_widget.update_orientation(
+                    data['roll'], data['pitch'], data['yaw']
+                )
+                
+                # Update labels
+                self.roll_label.setText(f"Roll: {data['roll']:.1f}°")
+                self.pitch_label.setText(f"Pitch: {data['pitch']:.1f}°")
+                self.yaw_label.setText(f"Yaw: {data['yaw']:.1f}°")
+                self.altitude_label.setText(f"Altitude: {data['altitude']:.1f} m")
+            elif 'status' in data:
+                # Handle status messages (optional: print to console)
+                print(f"Arduino status: {data['status']}")
+            elif 'error' in data:
+                # Handle error messages
+                print(f"Arduino error: {data['error']}")
     
     def clear_data(self):
         """Clear all plotted data"""
