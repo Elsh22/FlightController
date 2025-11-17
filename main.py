@@ -1,15 +1,14 @@
 """
-Rocket Flight Controller GUI
-Main application entry point
+Rocket Flight Controller - 3D OpenGL Version with Data Logging
 """
 import sys
 from PyQt6.QtWidgets import QApplication
-from src.gui.main_window import MainWindow
+from src.gui.main_window_spacex_3d import MainWindow
 
 
 def main():
     app = QApplication(sys.argv)
-    app.setApplicationName("Rocket Flight Controller")
+    app.setApplicationName("VCU Rocket Flight Controller - 3D + Logging")
     
     window = MainWindow()
     window.show()
